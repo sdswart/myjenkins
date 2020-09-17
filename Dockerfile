@@ -10,8 +10,7 @@ RUN apt-get update \
       && rm -rf /var/lib/apt/lists/*
 RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
 
-RUN chown jenkins:jenkins /home/jenkins/.docker -R
-RUN chmod g+rwx "$HOME/.docker" -R
+RUN chmod g+rwx "/var/run/" -R
 
 USER jenkins
 COPY plugins.txt /usr/share/jenkins/plugins.txt
