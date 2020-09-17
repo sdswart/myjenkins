@@ -1,0 +1,46 @@
+INSTALLATION:
+
+docker run --name jenkins-docker --rm --detach \
+--privileged=true \
+--volume /var/run/docker.sock:/var/run/docker.sock \
+--volume $(which docker):/usr/bin/docker \
+--volume jenkins-data:/var/jenkins_home \
+-p 8080:8080 myjenkins
+
+
+
+1) docker network create jenkins
+
+2)
+docker volume create jenkins-docker-certs
+docker volume create jenkins-data
+
+3) docker container run --name jenkins-docker --rm --detach \
+--privileged=true \
+--network jenkins --network-alias docker \
+--volume jenkins-data:/var/jenkins_home \
+--volume /var/run/docker.sock:/var/run/docker.sock \
+--publish 2376:2376 docker:dind
+
+4) docker container run --name jenkins-blueocean --rm --detach \
+--privileged=true \
+--network jenkins --env DOCKER_HOST=tcp://docker:2376 \
+--volume jenkins-data:/var/jenkins_home \
+--volume /var/run/docker.sock:/var/run/docker.sock \
+--publish 8080:8080 --publish 50000:50000 jenkinsci/blueocean
+
+GITHUB WEBHOOK
+1) Configure Jenkins:
+Go to Configure.
+Select the Source Code Management tab.
+In the Branch to Build section, Branch Specifier (blank for 'any'), then enter the branch you want to follow, here I am following the branch devel.
+In the Build Triggers tab, select GitHub hook trigger for GITScm polling.
+Click Save.
+
+2) Configure GitHub
+Go to your repository’s page on GitHub.
+Select Settings, Webhooks, Add webhook
+In the Payload URL enter: <jenkins-base-url>/github-webhook/
+In Content type select: application/json.
+In the box Which events would you like to trigger this webhook? select Just the push event.
+Click on Add webhook.
